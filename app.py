@@ -2,8 +2,6 @@
 
 Ejecutar:  py app.py   y abrir http://127.0.0.1:5000
 """
-import math
-
 from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
@@ -39,7 +37,7 @@ def a_si(valor, magnitud, unidad):
 
 
 def calcular_objeto(obj):
-    """Convierte a SI y calcula promedio, desviación y % de error de un objeto."""
+    """Convierte a SI y calcula el promedio y el % de error de un objeto."""
     magnitud = obj.get("magnitud", "longitud")
     if magnitud not in UNIDADES:
         raise ValueError(f"Magnitud desconocida: {magnitud}")
@@ -56,10 +54,7 @@ def calcular_objeto(obj):
 
     fab_si = a_si(fabricante, magnitud, u_fab)
     med_si = [a_si(m, magnitud, u_med) for m in mediciones]
-    n = len(med_si)
-    promedio = sum(med_si) / n
-    # Desviación estándar muestral (n - 1)
-    desviacion = math.sqrt(sum((x - promedio) ** 2 for x in med_si) / (n - 1))
+    promedio = sum(med_si) / len(med_si)
     diferencia = promedio - fab_si
     error_pct = abs(diferencia) / abs(fab_si) * 100 if fab_si != 0 else None
 
@@ -76,9 +71,7 @@ def calcular_objeto(obj):
         "fabricante_si": fab_si,
         "mediciones_si": med_si,
         "promedio_si": promedio,
-        "desviacion_si": desviacion,
         "diferencia_si": diferencia,
-        "rango_si": max(med_si) - min(med_si),
         "error_pct": error_pct,
     }
 

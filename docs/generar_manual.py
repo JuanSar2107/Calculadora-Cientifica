@@ -41,8 +41,8 @@ except Exception:
 
 # ---------- Estilos ----------
 s_normal = ParagraphStyle("normal", fontName=F, fontSize=10.5, leading=15, textColor=TEXTO, spaceAfter=6)
-s_h1 = ParagraphStyle("h1", fontName=FB, fontSize=18, leading=22, textColor=ROJO, spaceBefore=4, spaceAfter=10)
-s_h2 = ParagraphStyle("h2", fontName=FB, fontSize=13, leading=17, textColor=TEXTO, spaceBefore=12, spaceAfter=6)
+s_h1 = ParagraphStyle("h1", fontName=FB, fontSize=18, leading=22, textColor=ROJO, spaceBefore=14, spaceAfter=10, keepWithNext=1)
+s_h2 = ParagraphStyle("h2", fontName=FB, fontSize=13, leading=17, textColor=TEXTO, spaceBefore=12, spaceAfter=6, keepWithNext=1)
 s_vineta = ParagraphStyle("vineta", parent=s_normal, leftIndent=14, bulletIndent=2, spaceAfter=3)
 s_pie = ParagraphStyle("pie", parent=s_normal, fontSize=8.5, leading=11, textColor=SUAVE, alignment=TA_CENTER)
 s_celda = ParagraphStyle("celda", parent=s_normal, fontSize=9.5, leading=12.5, spaceAfter=0)
@@ -86,14 +86,14 @@ def tabla(filas, anchos, cabecera=True):
     return t
 
 
-def captura(nombre, pie, ancho=13.5 * cm):
+def captura(nombre, pie, ancho=10.5 * cm):
     ruta = CAPTURAS / nombre
     if not ruta.exists():
         return [P(f"<i>[Falta la captura {nombre}]</i>")]
     img = Image(str(ruta))
     escala = ancho / img.imageWidth
     img.drawWidth, img.drawHeight = ancho, img.imageHeight * escala
-    marco = Table([[img]], colWidths=[ancho + 6])
+    marco = Table([[img]], colWidths=[ancho + 6], hAlign="CENTER")
     marco.setStyle(TableStyle([("BOX", (0, 0), (-1, -1), 0.8, BORDE),
                                ("LEFTPADDING", (0, 0), (-1, -1), 3), ("RIGHTPADDING", (0, 0), (-1, -1), 3),
                                ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3)]))
@@ -188,7 +188,6 @@ def contenido():
           *vinetas(["<b>Convierte</b> todos los valores al Sistema Internacional (SI): metros (m) para longitud "
                     "y kilogramos (kg) para masa.",
                     "Calcula el <b>promedio</b> de tus tres mediciones.",
-                    "Calcula la <b>desviación estándar</b>, que indica cuánto varían tus mediciones entre sí.",
                     "Calcula la <b>diferencia</b> y el <b>porcentaje de error</b> respecto al valor del fabricante.",
                     "Dibuja una <b>gráfica de barras</b> que compara el valor del fabricante con tu medición real.",
                     "Muestra las <b>fórmulas</b> usadas, con tus propios números sustituidos paso a paso."]),
@@ -218,7 +217,6 @@ def contenido():
           ], [4.4 * cm, ANCHO_UTIL - 4.4 * cm]),
           *recuadro("En un celular, el menú lateral pasa arriba del contenido y el botón del manual muestra "
                     "solo su icono.", titulo="En pantallas pequeñas")]
-    h.append(PageBreak())
 
     # 3
     h += [P("3. Ingresar los datos de un objeto", s_h1),
@@ -251,7 +249,6 @@ def contenido():
                     color=ROJO, titulo="Datos incompletos"),
           P("Los decimales se escriben con punto o con coma, según la configuración de tu navegador "
             "(por ejemplo, 43,8 o 43.8).")]
-    h.append(PageBreak())
 
     # 4
     h += [P("4. Agregar, quitar y cargar ejemplos", s_h1),
@@ -260,7 +257,7 @@ def contenido():
               ["+ Agregar objeto", "Debajo de las tarjetas y en el menú lateral",
                "Crea una tarjeta nueva y vacía al final, y pone el cursor en el campo «Nombre». Si estás en la "
                "pestaña <b>Masa</b>, el objeto nuevo ya viene como masa en gramos; si no, como longitud en cm."],
-              ["✕ Quitar", "Esquina superior derecha de cada tarjeta",
+              ["× Quitar", "Esquina superior derecha de cada tarjeta",
                "Elimina ese objeto junto con su fila de la tabla, su gráfica y sus fórmulas. Siempre queda al "
                "menos un objeto, por eso el botón se oculta cuando solo hay uno."],
               ["Cargar ejemplo", "Junto a «+ Agregar objeto»",
@@ -282,7 +279,6 @@ def contenido():
           *captura("5_masa.jpg", "Figura 2. Pestaña «Masa» activa: solo se ve el mouse."),
           *recuadro("El número de la etiqueta («Objeto 2») es la posición del objeto en la lista completa. Por "
                     "eso, dentro de un filtro, la numeración puede saltar.", titulo="Nota")]
-    h.append(PageBreak())
 
     # 6
     h += [P("6. Tabla de resultados en SI", s_h1),
@@ -295,8 +291,6 @@ def contenido():
               ["Fabricante", "Valor del fabricante convertido a SI (m o kg)."],
               ["Medición 1, 2, 3", "Cada una de tus mediciones convertida a SI."],
               ["Promedio", "Media de las tres mediciones: tu «medición real»."],
-              ["Desv. estándar", "Cuánto se separan tus mediciones del promedio. Si es pequeña, mediste de "
-               "forma consistente."],
               ["Diferencia", "Promedio menos valor del fabricante. Positiva (+): mediste más que el fabricante. "
                "Negativa (−): mediste menos."],
               ["% Error", "Diferencia relativa respecto al fabricante, en porcentaje."],
@@ -311,7 +305,6 @@ def contenido():
                "Diferencia grande: puede haber un error de medición, de unidad o de dato."],
           ], [2.6 * cm, 3.8 * cm, ANCHO_UTIL - 6.4 * cm]),
           P("Los mismos colores aparecen en el menú lateral y en el título de cada gráfica.")]
-    h.append(PageBreak())
 
     # 7
     h += [P("7. Gráficas: fabricante vs. medición real", s_h1),
@@ -327,21 +320,18 @@ def contenido():
                     "(por ejemplo, 0,440 m frente a 0,439 m). Por eso una barra puede verse mucho más alta que "
                     "la otra aunque la diferencia real sea pequeña: fíjate siempre en los números del eje y en el "
                     "porcentaje de error.", color=ROJO, titulo="Cómo leer la gráfica")]
-    h.append(PageBreak())
 
     # 8
     h += [P("8. Fórmulas y ejemplo resuelto", s_h1),
-          P("La sección <b>Fórmulas utilizadas</b> muestra arriba las cuatro fórmulas generales y debajo, en "
+          P("La sección <b>Fórmulas utilizadas</b> muestra arriba las tres fórmulas generales y debajo, en "
             "<b>Sustitución con tus datos</b>, las mismas fórmulas con los números de cada objeto."),
-          *captura("4_formulas.jpg", "Figura 5. Fórmulas generales y sustitución con los datos del teclado.",
-                   ancho=12 * cm),
+          *captura("4_formulas.jpg", "Figura 5. Fórmulas generales y sustitución con los datos de cada objeto.",
+                   ancho=9.5 * cm),
           P("<b>Las fórmulas</b>", s_h2),
           P("<b>Conversión a SI</b>: se multiplica el valor por el factor de su unidad (ver sección 9)."),
           *formula("x<sub>SI</sub> = x × f<sub>unidad</sub>"),
           P("<b>Promedio</b>: la suma de las tres mediciones dividida entre 3."),
           *formula("x̄ = (x<sub>1</sub> + x<sub>2</sub> + x<sub>3</sub>) / 3"),
-          P("<b>Desviación estándar muestral</b>: mide la dispersión de las mediciones (n = 3)."),
-          *formula("s = √[ Σ (x<sub>i</sub> − x̄)<super>2</super> / (n − 1) ]"),
           P("<b>Porcentaje de error</b>: diferencia absoluta respecto al fabricante, en porcentaje."),
           *formula("%E = |x̄ − x<sub>fab</sub>| / x<sub>fab</sub> × 100"),
           P("Ejemplo resuelto: masa de un mouse", s_h2),
@@ -349,13 +339,10 @@ def contenido():
           *pasos(["<b>Conversión</b>: 1 g = 0,001 kg. Fabricante: 95 × 0,001 = <b>0,095 kg</b>. "
                   "Mediciones: 0,097 kg; 0,096 kg; 0,098 kg.",
                   "<b>Promedio</b>: (0,097 + 0,096 + 0,098) / 3 = <b>0,097 kg</b>.",
-                  "<b>Desviación estándar</b>: las diferencias con el promedio son 0; −0,001 y +0,001. "
-                  "s = √[(0 + 0,000001 + 0,000001) / 2] = <b>0,001 kg</b>.",
                   "<b>Diferencia</b>: 0,097 − 0,095 = <b>+0,002 kg</b> (mediste más que el fabricante).",
                   "<b>% de error</b>: |0,097 − 0,095| / 0,095 × 100 = <b>2,105 %</b> → color amarillo."]),
           *recuadro("Si el valor del fabricante es 0, el porcentaje de error no se puede calcular (sería una "
                     "división entre cero) y la página muestra «—».", titulo="Caso especial")]
-    h.append(PageBreak())
 
     # 9
     h += [P("9. Unidades disponibles", s_h1),

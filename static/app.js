@@ -226,7 +226,7 @@ function pintarLista(tarjetas, res) {
 function pintarTabla(tarjetas, res) {
   document.getElementById("tabla-si").innerHTML = res.map((r, i) => {
     const nombre = escapar(nombreDe(tarjetas[i]));
-    if (!r) return `<tr><td>${nombre}</td><td colspan="8" style="text-align:left;color:var(--suave)">Sin datos completos</td></tr>`;
+    if (!r) return `<tr><td>${nombre}</td><td colspan="7" style="text-align:left;color:var(--suave)">Sin datos completos</td></tr>`;
     const u = r.unidad_si;
     const err = r.error_pct === null ? "—" : fmt(r.error_pct) + " %";
     return `<tr>
@@ -234,7 +234,6 @@ function pintarTabla(tarjetas, res) {
       <td>${fmt(r.fabricante_si)} ${u}</td>
       ${r.mediciones_si.map(m => `<td>${fmt(m)} ${u}</td>`).join("")}
       <td><strong>${fmt(r.promedio_si)} ${u}</strong></td>
-      <td>${fmt(r.desviacion_si)} ${u}</td>
       <td>${r.diferencia_si >= 0 ? "+" : ""}${fmt(r.diferencia_si)} ${u}</td>
       <td class="${claseError(r.error_pct)}"><strong>${err}</strong></td>
     </tr>`;
@@ -320,7 +319,6 @@ function pintarFormulas(tarjetas, res) {
       `x_{fab} = ${tex(r.fabricante)}\\,\\text{${r.unidad_fabricante}} \\times ${tex(r.factor_fabricante)} = ${tex(r.fabricante_si)}${u}`,
       `x_i = (${r.mediciones.map(tex).join(",\\ ")})\\,\\text{${r.unidad_medicion}} \\times ${tex(r.factor_medicion)} = (${m1},\\ ${m2},\\ ${m3})${u}`,
       `\\bar{x} = \\dfrac{${m1} + ${m2} + ${m3}}{3} = ${tex(r.promedio_si)}${u}`,
-      `s = ${tex(r.desviacion_si)}${u}`,
       r.error_pct === null
         ? `\\%E \\text{ no definido (valor del fabricante = 0)}`
         : `\\%E = \\dfrac{|${tex(r.promedio_si)} - ${tex(r.fabricante_si)}|}{${tex(r.fabricante_si)}} \\times 100 = ${tex(r.error_pct)}\\,\\%`,

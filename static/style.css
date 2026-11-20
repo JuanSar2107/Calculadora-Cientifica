@@ -54,9 +54,15 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 
 /* ---------- Barra secundaria ---------- */
 .subnav { background: var(--gris-nav); display: flex; overflow-x: auto; padding: 0 16px; }
-.subnav a { color: #fff; text-decoration: none; font-size: .88rem; padding: 12px 10px; white-space: nowrap; }
-.subnav a:hover { text-decoration: underline; }
-.subnav a.activo { background: var(--negro); }
+.subnav button {
+  background: none; border: 0; border-bottom: 3px solid transparent; color: #fff; cursor: pointer;
+  font: inherit; font-size: .9rem; padding: 11px 16px 9px; white-space: nowrap;
+}
+.subnav button:hover { background: #4a4a4a; }
+.subnav button.activo { background: var(--negro); border-bottom-color: var(--rojo); }
+.subnav .cuenta { opacity: .65; font-size: .8rem; }
+.titulo-filtro { color: var(--rojo); font-weight: 500; }
+.vacio { margin: 0; padding: 22px; text-align: center; color: var(--suave); border: 1px dashed var(--borde); border-radius: 4px; }
 
 /* ---------- Página ---------- */
 .pagina { max-width: 1240px; margin: 0 auto; padding: 18px 16px 60px; }

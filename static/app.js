@@ -13,6 +13,15 @@ const VACIO = { nombre: "", magnitud: "longitud", unidad_fabricante: "cm", fabri
 const contObjetos = document.getElementById("objetos");
 const graficas = new Map(); // id de tarjeta -> { div, chart }
 let siguienteId = 1;
+let filtro = "todos"; // "todos" | "longitud" | "masa"
+const NOMBRE_FILTRO = { longitud: "longitud", masa: "masa" };
+
+// Objeto vacío según la pestaña activa (masa → g, longitud → cm)
+function plantillaFiltro() {
+  return filtro === "masa"
+    ? { ...VACIO, magnitud: "masa", unidad_fabricante: "g", unidad_medicion: "g" }
+    : { ...VACIO };
+}
 
 const css = getComputedStyle(document.documentElement);
 const COLOR_FAB = css.getPropertyValue("--fab").trim();
@@ -120,8 +129,11 @@ function claseError(e) {
 function escapar(s) {
   return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
-function nombreDe(card, i) {
-  return card.querySelector('[data-k="nombre"]').value || `Objeto ${i + 1}`;
+function nombreDe(card) {
+  return card.querySelector('[data-k="nombre"]').value || card.querySelector(".chip").textContent;
+}
+function magnitudDe(card) {
+  return card.querySelector('[data-k="magnitud"]').value;
 }
 
 // ---------- Cálculo ----------
@@ -161,10 +173,45 @@ async function calcular() {
     else if (r) tarjetas[x.i].querySelector(".estado").textContent = r.error;
   });
 
-  pintarLista(tarjetas, porPos);
-  pintarTabla(tarjetas, porPos);
-  pintarGraficas(tarjetas, porPos);
-  pintarFormulas(tarjetas, porPos);
+  aplicarFiltro(tarjetas, porPos);
+}
+
+// ---------- Filtro por magnitud ----------
+function aplicarFiltro(tarjetas, porPos) {
+  const visible = tarjetas.map(c => filtro === "todos" || magnitudDe(c) === filtro);
+  tarjetas.forEach((c, i) => { c.hidden = !visible[i]; });
+
+  // Contadores en las pestañas
+  const cuenta = { todos: tarjetas.length, longitud: 0, masa: 0 };
+  tarjetas.forEach(c => cuenta[magnitudDe(c)]++);
+  document.querySelectorAll(".subnav [data-filtro]").forEach(b => {
+    b.querySelector(".cuenta").textContent = `(${cuenta[b.dataset.filtro]})`;
+  });
+
+  const vacio = document.getElementById("vacio-filtro");
+  const hayVisibles = visible.some(Boolean);
+  vacio.hidden = hayVisibles;
+  vacio.textContent = hayVisibles ? "" :
+    `No hay objetos de ${NOMBRE_FILTRO[filtro]}. Pulsa "Agregar objeto" para añadir uno.`;
+  document.getElementById("titulo-filtro").textContent =
+    filtro === "todos" ? "" : `· ${filtro === "masa" ? "Masa" : "Longitud"}`;
+
+  const t = tarjetas.filter((_, i) => visible[i]);
+  const r = porPos.filter((_, i) => visible[i]);
+  pintarLista(t, r);
+  pintarTabla(t, r);
+  pintarGraficas(t, r);
+  pintarFormulas(t, r);
+}
+
+function cambiarFiltro(nuevo) {
+  filtro = nuevo;
+  document.querySelectorAll(".subnav [data-filtro]").forEach(b => {
+    const activo = b.dataset.filtro === nuevo;
+    b.classList.toggle("activo", activo);
+    b.setAttribute("aria-selected", activo);
+  });
+  calcular();
 }
 
 // ---------- Salidas ----------
@@ -172,13 +219,13 @@ function pintarLista(tarjetas, res) {
   document.getElementById("lista-objetos").innerHTML = tarjetas.map((c, i) => {
     const r = res[i];
     const pct = r && r.error_pct !== null ? `<span class="pct ${claseError(r.error_pct)}">${fmt(r.error_pct)} %</span>` : "";
-    return `<li><a href="#${c.id}"><span>${escapar(nombreDe(c, i))}</span>${pct}</a></li>`;
+    return `<li><a href="#${c.id}"><span>${escapar(nombreDe(c))}</span>${pct}</a></li>`;
   }).join("");
 }
 
 function pintarTabla(tarjetas, res) {
   document.getElementById("tabla-si").innerHTML = res.map((r, i) => {
-    const nombre = escapar(nombreDe(tarjetas[i], i));
+    const nombre = escapar(nombreDe(tarjetas[i]));
     if (!r) return `<tr><td>${nombre}</td><td colspan="8" style="text-align:left;color:var(--suave)">Sin datos completos</td></tr>`;
     const u = r.unidad_si;
     const err = r.error_pct === null ? "—" : fmt(r.error_pct) + " %";
@@ -236,13 +283,13 @@ function pintarGraficas(tarjetas, res) {
     const r = res[i];
     const titulo = div.querySelector("h4");
     if (!r) {
-      titulo.textContent = `${nombreDe(card, i)}: sin datos`;
+      titulo.textContent = `${nombreDe(card)}: sin datos`;
       chart.data.datasets[0].data = [0, 0];
       chart.update();
       return;
     }
     const err = r.error_pct === null ? "—" : fmt(r.error_pct) + " %";
-    titulo.innerHTML = `${escapar(nombreDe(card, i))} · error <span class="${claseError(r.error_pct)}">${err}</span>`;
+    titulo.innerHTML = `${escapar(nombreDe(card))} · error <span class="${claseError(r.error_pct)}">${err}</span>`;
     const a = r.fabricante_si, b = r.promedio_si;
     const lo = Math.min(a, b), hi = Math.max(a, b);
     const margen = Math.max((hi - lo) * 1.5, Math.abs(hi) * 0.02);
@@ -261,7 +308,7 @@ function pintarFormulas(tarjetas, res) {
   res.forEach((r, i) => {
     const box = document.createElement("div");
     box.className = "sustitucion";
-    const nombre = escapar(nombreDe(tarjetas[i], i));
+    const nombre = escapar(nombreDe(tarjetas[i]));
     if (!r) {
       box.innerHTML = `<h4>${nombre}</h4><p class="nota">Sin datos completos.</p>`;
       cont.appendChild(box);
@@ -291,7 +338,7 @@ document.querySelectorAll("[data-tex]").forEach(el =>
 
 document.querySelectorAll("[data-agregar]").forEach(btn =>
   btn.addEventListener("click", () => {
-    const card = agregarObjeto();
+    const card = agregarObjeto(plantillaFiltro());
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.querySelector('[data-k="nombre"]').focus({ preventScroll: true });
   }));
@@ -305,3 +352,6 @@ document.getElementById("btn-ejemplo").addEventListener("click", () => {
 
 // Arranca con un solo objeto
 agregarObjeto(EJEMPLOS[0]);
+
+document.querySelectorAll(".subnav [data-filtro]").forEach(b =>
+  b.addEventListener("click", () => cambiarFiltro(b.dataset.filtro)));

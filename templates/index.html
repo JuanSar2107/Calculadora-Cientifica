@@ -29,12 +29,10 @@
 </header>
 
 <!-- Barra secundaria -->
-<nav class="subnav">
-  <a class="activo" href="#">Magnitudes y medición</a>
-  <a href="#datos">Longitud</a>
-  <a href="#datos">Masa</a>
-  <a href="#tabla">Conversiones SI</a>
-  <a href="#formulas">Porcentaje de error</a>
+<nav class="subnav" role="tablist" aria-label="Filtrar por magnitud">
+  <button type="button" role="tab" class="activo" data-filtro="todos" aria-selected="true">Todos <span class="cuenta"></span></button>
+  <button type="button" role="tab" data-filtro="longitud" aria-selected="false">Longitud <span class="cuenta"></span></button>
+  <button type="button" role="tab" data-filtro="masa" aria-selected="false">Masa <span class="cuenta"></span></button>
 </nav>
 
 <div class="pagina">
@@ -62,10 +60,11 @@
       <!-- Datos -->
       <section class="panel" id="datos">
         <div class="panel-cab">
-          <h2>Datos de los objetos</h2>
+          <h2>Datos de los objetos <span id="titulo-filtro" class="titulo-filtro"></span></h2>
           <span class="nota">Se recalcula en vivo mientras escribes</span>
         </div>
         <div id="objetos" class="objetos"></div>
+        <p id="vacio-filtro" class="vacio" hidden></p>
         <div class="acciones">
           <button class="btn btn-primario" type="button" data-agregar>+ Agregar objeto</button>
           <button class="btn" type="button" id="btn-ejemplo">Cargar ejemplo</button>

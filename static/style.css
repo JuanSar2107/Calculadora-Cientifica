@@ -51,6 +51,13 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
   color: #fff; text-decoration: none; font-size: .78rem; font-weight: 500; padding: 0 16px; white-space: nowrap;
 }
 .topnav a:hover, .topnav a.activo { background: var(--rojo-osc); }
+.btn-manual {
+  margin-left: auto; align-self: center; display: flex; align-items: center; gap: 8px;
+  background: #fff; color: var(--rojo); text-decoration: none; font-weight: 700; font-size: .88rem;
+  border-radius: 999px; padding: 9px 16px; white-space: nowrap; flex-shrink: 0;
+}
+.btn-manual:hover { background: #ffe9ec; }
+.btn-manual svg { width: 18px; height: 18px; }
 
 /* ---------- Barra secundaria ---------- */
 .subnav { background: var(--gris-nav); display: flex; overflow-x: auto; padding: 0 16px; }
@@ -159,6 +166,8 @@ input:focus, select:focus { outline: 2px solid var(--teal); outline-offset: -1px
   .lateral { position: static; }
   .topbar { height: 64px; }
   .logo span:last-child { display: none; }
+  .btn-manual span { display: none; }
+  .btn-manual { padding: 9px; }
   .panel { padding: 18px 16px; }
   .card-body .ancho { grid-column: 1 / -1; }
 }
